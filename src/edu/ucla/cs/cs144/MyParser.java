@@ -23,7 +23,7 @@
  * useful.
  */
 
-package edu.ucla.cs.cs144;
+//package edu.ucla.cs.cs144;
 
 import java.io.*;
 import java.text.*;
@@ -46,6 +46,16 @@ class MyParser {
     static final String columnSeparator = "|*|";
     static DocumentBuilder builder;
     
+    /*
+     * File variables used to write xml data to character stream outputs
+     * bidID is used so that two similar bids can be treated separately
+     * and deleted by sort -u
+     */
+    private static BufferedWriter itemTableWriter;    
+    private static BufferedWriter categoryTableWriter;
+    private static BufferedWriter userTableWriter;
+    private static BufferedWriter bidTableWriter;
+
     static final String[] typeName = {
 	"none",
 	"Element",
@@ -157,8 +167,150 @@ class MyParser {
             return nf.format(am).substring(1);
         }
     }
+
+
+    /**
+     * Parse2ItemTable parses one item from the given xml file.<p>
+     * @param root element (in)
+     * @throws IOException thrown if error in reading values
+     */
+    public static void parse2ItemTable(Element item) throws IOException {
+        String itemID = item.getAttribute("ItemID");
+        String name = getElementTextByTagNameNR(item, "Name");
+        String buyPrice = strip(getElementTextByTagNameNR(item, "Buy_Price"));
+        String firstBid = strip(getElementTextByTagNameNR(item, "First_Bid"));
+        String started = getElementTextByTagNameNR(item, "Started");
+        String ends = getElementTextByTagNameNR(item, "Ends");
+        String description = getElementTextByTagNameNR(item, "Description");
+
+        started = timestamp(started); //source of error
+        ends = timestamp(ends); //source of error
+        description = description.length() <= 4000? description: description.substring(0, 4000);
+
+        Element seller = getElementByTagNameNR(item, "Seller");
+        String sellerID = seller.getAttribute("UserID");
+
+        writeToFile(itemTableWriter, itemID, sellerID, name, buyPrice, firstBid, started, ends, description);
+    }
+
+
+    /**
+     * parse2UserTable parses one item from the given xml file.<p>
+     * @param root element (in)
+     * @throws IOException thrown if error in reading values
+     */
+    public static void parse2UserTable(Element item) throws IOException {
+        Element user = getElementByTagNameNR(item, "Seller");
+        String userID = user.getAttribute("UserID");
+        String rating = user.getAttribute("Rating");
+        String location = getElementText(getElementByTagNameNR(item, "Location"));
+        String country = getElementText(getElementByTagNameNR(item, "Country"));
+            
+        //location = (location == null)? "" : location; 
+        //country = (country == null)? "" : country;
+
+        writeToFile(userTableWriter, userID, rating, location, country);
+            
+        Element[] bids = getElementsByTagNameNR(getElementByTagNameNR(item, "Bids"), "Bid");
+            
+        for(int i = 0; i < bids.length; i++){
+            Element bidder = getElementByTagNameNR(bids[i], "Bidder");
+            String bID = bidder.getAttribute("UserID");
+            String bRating = bidder.getAttribute("Rating");
+            String bLocation = getElementTextByTagNameNR(bidder, "Location");
+            String bCountry = getElementTextByTagNameNR(bidder, "Country");
+
+            //bLocation = (bLocation == null)? "" : bLocation;
+            //bCountry = (bCountry == null)? "" : bCountry;
+            
+            writeToFile(userTableWriter, bID, bRating, bLocation, bCountry);
+        }
+    }
+
+
+    /**
+     * parse2CategoriesTable parses one item from the given xml file.<p>
+     * @param root element (in)
+     * @throws IOException thrown if error in reading values
+     */
+    public static void parse2CategoriesTable(Element item) throws IOException {
+        String itemID = item.getAttribute("ItemID");
+        Element[] categories = getElementsByTagNameNR(item, "Category");
+
+        for(int i = 0; i < categories.length; i++){
+            String category = getElementText(categories[i]);
+            writeToFile(categoryTableWriter, itemID, category);
+        }
+    }
+
+
+    /**
+     * parse2BidTable parses one item from the given xml file.<p>
+     * @param root element (in)
+     * @throws IOException thrown if error in reading values
+     */
+    public static void parse2BidTable(Element item) throws IOException {
+        String itemID = item.getAttribute("ItemID");
+        Element[] bids = getElementsByTagNameNR(getElementByTagNameNR(item, "Bids"), "Bid");
+        
+        for(int i = 0; i < bids.length; i++){
+            Element bidder = getElementByTagNameNR(bids[i], "Bidder");
+            String userID = bidder.getAttribute("UserID");
+            String time = timestamp(getElementTextByTagNameNR(bids[i], "Time")); //source of error
+            String amount = strip(getElementTextByTagNameNR(bids[i], "Amount"));
+            writeToFile(bidTableWriter, itemID, userID, time, amount);
+        }
+    }
+
+
+    /**
+     * Method converts the xml date input into output.<p>
+     * @param pass in date as string from xml document
+     * @throws IOException thrown if there is an error reading in the value
+     */
+    private static String timestamp(String date) {
+        SimpleDateFormat inputFormat = new SimpleDateFormat("MMM-dd-yy HH:mm:ss");
+        SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        try {
+            return outputFormat.format(inputFormat.parse(date)).toString();
+        }
+        catch(ParseException e) {
+            System.err.println("timestamp: Parse error");
+            return "timestamp: Parse error";
+        }
+    }
+
     
-    /* Process one items-???.xml file.
+    /** 
+     * rowFormat generates the tuple format. <p>
+     * @param String[] input (in)
+     * @throws IOException if error in writing values
+     */
+    private static String rowFormat(String[] input) {
+        StringBuilder row = new StringBuilder();
+        int i = 0;
+        while(i < input.length-1){
+            row.append(input[i] + columnSeparator);
+            i++;
+        }
+        row.append(input[i]);
+            
+        return row.toString();
+    }
+    
+
+    /** 
+     * writeToFile writes a tuple to the given table. <p>
+     * @param BufferedWriter output(in), String... args(in)
+     * @throws IOException if error in writing values
+     */ 
+    private static void writeToFile(BufferedWriter output, String... args) throws IOException {
+        output.write(rowFormat(args));
+        output.newLine();
+    }
+
+
+    /* Process one items-?.xml file.
      */
     static void processFile(File xmlFile) {
         Document doc = null;
@@ -175,18 +327,22 @@ class MyParser {
             e.printStackTrace();
             System.exit(3);
         }
-        
-        /* At this point 'doc' contains a DOM representation of an 'Items' XML
-         * file. Use doc.getDocumentElement() to get the root Element. */
+    
         System.out.println("Successfully parsed - " + xmlFile);
+
+        Element[] items = getElementsByTagNameNR(doc.getDocumentElement(), "Item");
         
-        /* Fill in code here (you will probably need to write auxiliary
-            methods). */
-        
-        
-        
-        /**************************************************************/
-        
+        try {
+            for(int i = 0; i< items.length; i++) {
+                parse2ItemTable(items[i]);
+                parse2CategoriesTable(items[i]);
+                parse2UserTable(items[i]);
+                parse2BidTable(items[i]);
+            }
+        }
+        catch (IOException e) {
+                e.printStackTrace();
+        }
     }
     
     public static void main (String[] args) {
@@ -194,8 +350,7 @@ class MyParser {
             System.out.println("Usage: java MyParser [file] [file] ...");
             System.exit(1);
         }
-        
-        /* Initialize parser. */
+    
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             factory.setValidating(false);
@@ -212,10 +367,26 @@ class MyParser {
             System.exit(2);
         }
         
-        /* Process all files listed on command line. */
-        for (int i = 0; i < args.length; i++) {
-            File currentFile = new File(args[i]);
-            processFile(currentFile);
+        try{
+
+            itemTableWriter = new BufferedWriter(new FileWriter("itemTable.dat", true));            
+            categoryTableWriter = new BufferedWriter(new FileWriter("categoryTable.dat", true));
+            userTableWriter = new BufferedWriter(new FileWriter("userTable.dat", true));
+            bidTableWriter = new BufferedWriter(new FileWriter("bidTable.dat", true));
+
+            /* Process all files listed on command line. */
+            for (int i = 0; i < args.length; i++) {
+                File currentFile = new File(args[i]);
+                processFile(currentFile);
+            }
+
+            itemTableWriter.close();
+            userTableWriter.close();
+            categoryTableWriter.close();
+            bidTableWriter.close();
+        }
+        catch(IOException e){
+            e.printStackTrace();
         }
     }
 }
