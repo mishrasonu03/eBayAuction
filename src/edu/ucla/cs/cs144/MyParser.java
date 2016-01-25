@@ -51,10 +51,10 @@ class MyParser {
      * bidID is used so that two similar bids can be treated separately
      * and deleted by sort -u
      */
-    private static BufferedWriter itemTableWriter;    
-    private static BufferedWriter categoryTableWriter;
-    private static BufferedWriter userTableWriter;
-    private static BufferedWriter bidTableWriter;
+    static BufferedWriter itemTableWriter;    
+    static BufferedWriter categoryTableWriter;
+    static BufferedWriter userTableWriter;
+    static BufferedWriter bidTableWriter;
 
     static final String[] typeName = {
 	"none",
@@ -174,7 +174,7 @@ class MyParser {
      * @param root element (in)
      * @throws IOException thrown if error in reading values
      */
-    public static void parse2ItemTable(Element item) throws IOException {
+    static void parse2ItemTable(Element item) throws IOException {
         String itemID = item.getAttribute("ItemID");
         String name = getElementTextByTagNameNR(item, "Name");
         String buyPrice = strip(getElementTextByTagNameNR(item, "Buy_Price"));
@@ -199,7 +199,7 @@ class MyParser {
      * @param root element (in)
      * @throws IOException thrown if error in reading values
      */
-    public static void parse2UserTable(Element item) throws IOException {
+    static void parse2UserTable(Element item) throws IOException {
         Element user = getElementByTagNameNR(item, "Seller");
         String userID = user.getAttribute("UserID");
         String rating = user.getAttribute("Rating");
@@ -233,7 +233,7 @@ class MyParser {
      * @param root element (in)
      * @throws IOException thrown if error in reading values
      */
-    public static void parse2CategoriesTable(Element item) throws IOException {
+    static void parse2CategoriesTable(Element item) throws IOException {
         String itemID = item.getAttribute("ItemID");
         Element[] categories = getElementsByTagNameNR(item, "Category");
 
@@ -249,7 +249,7 @@ class MyParser {
      * @param root element (in)
      * @throws IOException thrown if error in reading values
      */
-    public static void parse2BidTable(Element item) throws IOException {
+    static void parse2BidTable(Element item) throws IOException {
         String itemID = item.getAttribute("ItemID");
         Element[] bids = getElementsByTagNameNR(getElementByTagNameNR(item, "Bids"), "Bid");
         
@@ -268,7 +268,7 @@ class MyParser {
      * @param pass in date as string from xml document
      * @throws IOException thrown if there is an error reading in the value
      */
-    private static String timestamp(String date) {
+    static String timestamp(String date) {
         SimpleDateFormat inputFormat = new SimpleDateFormat("MMM-dd-yy HH:mm:ss");
         SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         try {
@@ -286,7 +286,7 @@ class MyParser {
      * @param String[] input (in)
      * @throws IOException if error in writing values
      */
-    private static String rowFormat(String[] input) {
+    static String rowFormat(String[] input) {
         StringBuilder row = new StringBuilder();
         int i = 0;
         while(i < input.length-1){
@@ -304,7 +304,7 @@ class MyParser {
      * @param BufferedWriter output(in), String... args(in)
      * @throws IOException if error in writing values
      */ 
-    private static void writeToFile(BufferedWriter output, String... args) throws IOException {
+    static void writeToFile(BufferedWriter output, String... args) throws IOException {
         output.write(rowFormat(args));
         output.newLine();
     }
