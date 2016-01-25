@@ -1,0 +1,37 @@
+CREATE TABLE Items (
+ItemID INT,
+Name VARCHAR(100),
+Buy_Price DECIMAL(8,2),
+First_Bid DECIMAL(8,2),
+Started TIMESTAMP,
+Ends TIMESTAMP,
+SellerID VARCHAR(100)
+Description VARCHAR(4000),
+PRIMARY KEY(ItemID)
+);
+
+CREATE TABLE Category(
+ItemID INT,
+Category VARCHAR(100)
+PRIMARY KEY(ItemID, Category),
+FOREIGN KEY(ItemID) REFERENCES Items(ItemID)
+);
+
+CREATE TABLE Bids(
+ItemID INT,
+BidderID VARCHAR(100),
+Time TIMESTAMP,
+Amount DECIMAL(8,2),
+PRIMARY KEY(ItemID, BidderID, Time),
+FOREIGN KEY(ItemID) REFERENCES Items(ItemID),
+FOREIGN KEY(BidderID) REFERENCES Users(UsersID)
+);
+
+CREATE TABLE Users(
+UsersID VARCHAR(100),
+Location VARCHAR(100),
+Country VARCHAR(100),
+BuyRating INT,
+SellRating INT,
+PRIMARY KEY(UsersID)
+);
