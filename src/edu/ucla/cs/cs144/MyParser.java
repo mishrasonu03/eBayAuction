@@ -46,15 +46,10 @@ class MyParser {
     static final String columnSeparator = "|*|";
     static DocumentBuilder builder;
     
-    /*
-     * File variables used to write xml data to character stream outputs
-     * bidID is used so that two similar bids can be treated separately
-     * and deleted by sort -u
-     */
-    static BufferedWriter itemTableWriter;    
-    static BufferedWriter categoryTableWriter;
-    static BufferedWriter userTableWriter;
-    static BufferedWriter bidTableWriter;
+    static BufferedWriter itemTableWriter = new BufferedWriter(new FileWriter("itemTable.dat", true));
+    static BufferedWriter categoryTableWriter = new BufferedWriter(new FileWriter("categoryTable.dat", true));
+    static BufferedWriter userTableWriter = new BufferedWriter(new FileWriter("userTable.dat", true));
+    static BufferedWriter bidTableWriter = new BufferedWriter(new FileWriter("bidTable.dat", true));
 
     static final String[] typeName = {
 	"none",
@@ -368,12 +363,6 @@ class MyParser {
         }
         
         try{
-
-            itemTableWriter = new BufferedWriter(new FileWriter("itemTable.dat", true));            
-            categoryTableWriter = new BufferedWriter(new FileWriter("categoryTable.dat", true));
-            userTableWriter = new BufferedWriter(new FileWriter("userTable.dat", true));
-            bidTableWriter = new BufferedWriter(new FileWriter("bidTable.dat", true));
-
             /* Process all files listed on command line. */
             for (int i = 0; i < args.length; i++) {
                 File currentFile = new File(args[i]);
