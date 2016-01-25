@@ -1,18 +1,18 @@
-CREATE TABLE Items (
+CREATE TABLE Items(
 ItemID INT,
 Name VARCHAR(100),
 Buy_Price DECIMAL(8,2),
 First_Bid DECIMAL(8,2),
 Started TIMESTAMP,
 Ends TIMESTAMP,
-SellerID VARCHAR(100)
+SellerID VARCHAR(100),
 Description VARCHAR(4000),
 PRIMARY KEY(ItemID)
 );
 
 CREATE TABLE Category(
 ItemID INT,
-Category VARCHAR(100)
+Category VARCHAR(100),
 PRIMARY KEY(ItemID, Category),
 FOREIGN KEY(ItemID) REFERENCES Items(ItemID)
 );
