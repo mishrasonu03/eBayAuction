@@ -5,7 +5,7 @@ FROM Users;
 
 
 --Find the number of items in "New York"
---Correct Answer: 80
+--Correct Answer: 103
 SELECT COUNT(DISTINCT Items.ItemID)
 FROM Users INNER JOIN Items
 ON Users.UsersID = Items.SellerID
