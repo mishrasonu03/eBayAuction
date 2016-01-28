@@ -46,10 +46,56 @@ class MyParser {
     static final String columnSeparator = "|*|";
     static DocumentBuilder builder;
     
-    static BufferedWriter itemTableWriter = new BufferedWriter(new FileWriter("itemTable.dat", true));
-    static BufferedWriter categoryTableWriter = new BufferedWriter(new FileWriter("categoryTable.dat", true));
-    static BufferedWriter userTableWriter = new BufferedWriter(new FileWriter("userTable.dat", true));
-    static BufferedWriter bidTableWriter = new BufferedWriter(new FileWriter("bidTable.dat", true));
+    public static class User {
+        String location;
+        String latitude;
+        String longitude;
+        String country;
+        String sellerRating;
+        String bidderRating;
+
+        User(String loc, String lat, String lon, String country, String sRating, String bRating) { 
+            location = loc;
+            latitude = lat;
+            longitude = lon;
+            country = country;
+            sellerRating = sRating;
+            bidderRating = bRating;
+        }
+
+        public User setLat(String lat){
+            latitude = lat;
+            return this;
+        }
+
+        public User setLong(String lon){
+            longitude = lon;
+            return this;
+        }
+
+        public User setSellRating(String sRating){
+            sellerRating = sRating;
+            return this;
+        }
+
+        public User setBidRating(String bRating){
+            bidderRating = bRating;
+            return this;
+        }
+
+        public String toString(){
+            String ret = "";
+            return ret +columnSeparator+ location +columnSeparator+ latitude
+                       +columnSeparator+ longitude +columnSeparator+ country
+                       +columnSeparator+ sellerRating +columnSeparator+ bidderRating;
+        }
+    }
+    
+    static HashMap<String, User> userHashMap = new HashMap<String, User>();
+    static BufferedWriter itemTableWriter;
+    static BufferedWriter categoryTableWriter;
+    static BufferedWriter userTableWriter;
+    static BufferedWriter bidTableWriter;
 
     static final String[] typeName = {
 	"none",
@@ -66,7 +112,7 @@ class MyParser {
 	"DocFragment",
 	"Notation",
     };
-    
+
     static class MyErrorHandler implements ErrorHandler {
         
         public void warning(SAXParseException exception)
@@ -195,30 +241,44 @@ class MyParser {
      * @throws IOException thrown if error in reading values
      */
     static void parse2UserTable(Element item) throws IOException {
-        Element user = getElementByTagNameNR(item, "Seller");
-        String userID = user.getAttribute("UserID");
-        String rating = user.getAttribute("Rating");
-        String location = getElementText(getElementByTagNameNR(item, "Location"));
-        String country = getElementText(getElementByTagNameNR(item, "Country"));
-            
-        //location = (location == null)? "" : location; 
-        //country = (country == null)? "" : country;
+        Element seller = getElementByTagNameNR(item, "Seller");
+        String sellerID = seller.getAttribute("UserID");
+        String sellerRating = seller.getAttribute("Rating");
+        
+        Element sLocation = getElementByTagNameNR(item, "Location");
+        String sellerLatitude = sLocation.getAttribute("Latitude");
+        String sellerLongitude = sLocation.getAttribute("Longitude");
+        String sellerLocation = getElementText(sLocation);
+        String sellerCountry = getElementText(getElementByTagNameNR(item, "Country")); 
 
-        writeToFile(userTableWriter, userID, rating, location, country);
+        if (!userHashMap.containsKey(sellerID)) {
+            User sellerObj = new User(sellerLocation, sellerLatitude, sellerLongitude, sellerCountry, "", sellerRating);
+            userHashMap.put(sellerID, sellerObj);
+        }
+        else{
+            User userObj = userHashMap.get(sellerID);
+            userHashMap.put(sellerID, userObj.setLat(sellerLatitude).setLong(sellerLongitude).setSellRating(sellerRating));            
+        }
+        //writeToFile(userTableWriter, sellerID, sellerLocation, sellerLatitude, sellerLongitude, sellerCountry, 0, sellerRating);
             
         Element[] bids = getElementsByTagNameNR(getElementByTagNameNR(item, "Bids"), "Bid");
             
         for(int i = 0; i < bids.length; i++){
             Element bidder = getElementByTagNameNR(bids[i], "Bidder");
-            String bID = bidder.getAttribute("UserID");
-            String bRating = bidder.getAttribute("Rating");
-            String bLocation = getElementTextByTagNameNR(bidder, "Location");
-            String bCountry = getElementTextByTagNameNR(bidder, "Country");
+            String bidderID = bidder.getAttribute("UserID");
+            String bidderRating = bidder.getAttribute("Rating");
+            String bidderLocation = getElementTextByTagNameNR(bidder, "Location");
+            String bidderCountry = getElementTextByTagNameNR(bidder, "Country");
 
-            //bLocation = (bLocation == null)? "" : bLocation;
-            //bCountry = (bCountry == null)? "" : bCountry;
-            
-            writeToFile(userTableWriter, bID, bRating, bLocation, bCountry);
+            if (!userHashMap.containsKey(bidderID)) {
+                User bidderObj = new User(bidderLocation, "", "", bidderCountry, bidderRating, "");
+                userHashMap.put(bidderID, bidderObj);
+            }
+            else{
+                User userObj = userHashMap.get(bidderID);
+                userHashMap.put(bidderID, userObj.setBidRating(bidderRating));            
+            }
+            //writeToFile(userTableWriter, bidderID, bidderLocation, "", "", bidderCountry, bidderRating, "");
         }
     }
 
@@ -363,10 +423,25 @@ class MyParser {
         }
         
         try{
+            itemTableWriter = new BufferedWriter(new FileWriter("itemTable.dat", true));
+            categoryTableWriter = new BufferedWriter(new FileWriter("categoryTable.dat", true));
+            userTableWriter = new BufferedWriter(new FileWriter("userTable.dat", true));
+            bidTableWriter = new BufferedWriter(new FileWriter("bidTable.dat", true));
+
             /* Process all files listed on command line. */
             for (int i = 0; i < args.length; i++) {
                 File currentFile = new File(args[i]);
                 processFile(currentFile);
+            }
+
+            /* Writing into user table; item, category, bid tables have been written
+            in parse2ItemTable(), parse2BidTable and parse2CategoryTable, respectively
+            */
+            Set<String> users = userHashMap.keySet();
+            Iterator<String> userIDs = users.iterator();
+            while(userIDs.hasNext()) {
+                String userID = userIDs.next();
+                userTableWriter.write(userID + userHashMap.get(userID).toString()); 
             }
 
             itemTableWriter.close();
