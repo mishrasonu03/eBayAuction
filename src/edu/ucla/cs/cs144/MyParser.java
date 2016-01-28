@@ -54,11 +54,11 @@ class MyParser {
         String sellerRating;
         String bidderRating;
 
-        User(String loc, String lat, String lon, String country, String sRating, String bRating) { 
+        User(String loc, String lat, String lon, String cntry, String sRating, String bRating) { 
             location = loc;
             latitude = lat;
             longitude = lon;
-            country = country;
+            country = cntry;
             sellerRating = sRating;
             bidderRating = bRating;
         }
@@ -249,7 +249,8 @@ class MyParser {
         String sellerLatitude = sLocation.getAttribute("Latitude");
         String sellerLongitude = sLocation.getAttribute("Longitude");
         String sellerLocation = getElementText(sLocation);
-        String sellerCountry = getElementText(getElementByTagNameNR(item, "Country")); 
+        //String sellerCountry = getElementText(getElementByTagNameNR(item, "Country")); 
+        String sellerCountry = getElementTextByTagNameNR(item, "Country"); 
 
         if (!userHashMap.containsKey(sellerID)) {
             User sellerObj = new User(sellerLocation, sellerLatitude, sellerLongitude, sellerCountry, "", sellerRating);
@@ -269,7 +270,7 @@ class MyParser {
             String bidderRating = bidder.getAttribute("Rating");
             String bidderLocation = getElementTextByTagNameNR(bidder, "Location");
             String bidderCountry = getElementTextByTagNameNR(bidder, "Country");
-
+            
             if (!userHashMap.containsKey(bidderID)) {
                 User bidderObj = new User(bidderLocation, "", "", bidderCountry, bidderRating, "");
                 userHashMap.put(bidderID, bidderObj);
@@ -441,7 +442,8 @@ class MyParser {
             Iterator<String> userIDs = users.iterator();
             while(userIDs.hasNext()) {
                 String userID = userIDs.next();
-                userTableWriter.write(userID + userHashMap.get(userID).toString()); 
+                userTableWriter.write(userID + userHashMap.get(userID).toString());
+                userTableWriter.newLine();
             }
 
             itemTableWriter.close();
