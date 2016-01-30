@@ -1,24 +1,15 @@
-CREATE TABLE Users(
-UserID VARCHAR(100),
-Location VARCHAR(100),
-Country VARCHAR(100),
-PRIMARY KEY(UserID)
-);
-
 CREATE TABLE Sellers(
 UserID VARCHAR(100),
 SellRating INT,
-Latitude DECIMAL(13,10),
-Longitude DECIMAL(13,10),
-PRIMARY KEY(UserID),
-FOREIGN KEY(UserID) REFERENCES Users(UserID)
+PRIMARY KEY(UserID)
 );
 
 CREATE TABLE Bidders(
 UserID VARCHAR(100),
 BidRating INT,
-PRIMARY KEY(UserID),
-FOREIGN KEY(UserID) REFERENCES Users(UserID)
+Location VARCHAR(100),
+Country VARCHAR(100),
+PRIMARY KEY(UserID)
 );
 
 CREATE TABLE Items(
@@ -29,9 +20,13 @@ Buy_Price DECIMAL(8,2),
 First_Bid DECIMAL(8,2),
 Started TIMESTAMP,
 Ends TIMESTAMP,
+Latitude DECIMAL(13,10),
+Longitude DECIMAL(13,10),
+Location VARCHAR(100),
+Country VARCHAR(100),
 Description VARCHAR(4000),
 PRIMARY KEY(ItemID),
-FOREIGN KEY(SellerID) REFERENCES Users(UserID)
+FOREIGN KEY(SellerID) REFERENCES Sellers(UserID)
 );
 
 CREATE TABLE Category(
