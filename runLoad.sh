@@ -5,21 +5,16 @@ mysql CS144 < create.sql
 
 ant
 #ant run
-#Use this to run on all data
 ant run-all
 
-sort -u itemTable.dat > itemTable.dat
-sort -u categoryTable.dat > categoryTable.dat
-sort -u userTable.dat > userTable.dat
-sort -u bidTable.dat > bidTable.dat
-sort -u sellerTable.dat > sellerTable.dat
-sort -u bidderTable.dat > bidderTable.dat
+sort -u categoryTable.dat > category.dat
+sort -u itemTable.dat > item.dat
+sort -u bidTable.dat > bid.dat
+sort -u sellerTable.dat > seller.dat
+sort -u bidderTable.dat > bidder.dat
 
 mysql CS144 < load.sql
 
-rm itemTable.dat
-rm categoryTable.dat
-rm userTable.dat
-rm bidTable.dat
-rm sellerTable.dat
-rm bidderTable.dat
+rm *.dat
+rm -rf bin
+
