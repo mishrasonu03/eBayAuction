@@ -1,14 +1,18 @@
 -- Find the number of users in the database
 -- Correct Answer: 13422
-SELECT COUNT(*) 
-FROM Users;
+
+SELECT COUNT(*)
+FROM (
+(SELECT UserID from Sellers)
+UNION 
+(SELECT UserID from Bidders)
+)A;
 
 
 -- Find the number of items in "New York"
 -- Correct Answer: 103
-SELECT COUNT(DISTINCT Items.ItemID)
-FROM Users INNER JOIN Items
-ON Users.UserID = Items.SellerID
+SELECT COUNT(Items.ItemID)
+FROM Items
 WHERE BINARY Location = 'New York';
 
 
