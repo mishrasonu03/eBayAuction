@@ -1,3 +1,26 @@
+CREATE TABLE Users(
+UserID VARCHAR(100),
+Location VARCHAR(100),
+Country VARCHAR(100),
+PRIMARY KEY(UserID)
+);
+
+CREATE TABLE Sellers(
+UserID VARCHAR(100),
+SellRating INT,
+Latitude DECIMAL(13,10),
+Longitude DECIMAL(13,10),
+PRIMARY KEY(UserID),
+FOREIGN KEY(UserID) REFERENCES Users(UserID)
+);
+
+CREATE TABLE Bidders(
+UserID VARCHAR(100),
+BidRating INT,
+PRIMARY KEY(UserID),
+FOREIGN KEY(UserID) REFERENCES Users(UserID)
+);
+
 CREATE TABLE Items(
 ItemID INT,
 SellerID VARCHAR(100),
@@ -7,7 +30,8 @@ First_Bid DECIMAL(8,2),
 Started TIMESTAMP,
 Ends TIMESTAMP,
 Description VARCHAR(4000),
-PRIMARY KEY(ItemID)
+PRIMARY KEY(ItemID),
+FOREIGN KEY(SellerID) REFERENCES Users(UserID)
 );
 
 CREATE TABLE Category(
@@ -17,17 +41,6 @@ PRIMARY KEY(ItemID, Category),
 FOREIGN KEY(ItemID) REFERENCES Items(ItemID)
 );
 
-CREATE TABLE Users(
-UsersID VARCHAR(100),
-Location VARCHAR(100),
-Latitude DECIMAL(13,10),
-Longitude DECIMAL(13,10),
-Country VARCHAR(100),
-BuyRating INT,
-SellRating INT,
-PRIMARY KEY(UsersID)
-);
-
 CREATE TABLE Bids(
 ItemID INT,
 BidderID VARCHAR(100),
@@ -35,5 +48,5 @@ Time TIMESTAMP,
 Amount DECIMAL(8,2),
 PRIMARY KEY(ItemID, BidderID, Time),
 FOREIGN KEY(ItemID) REFERENCES Items(ItemID),
-FOREIGN KEY(BidderID) REFERENCES Users(UsersID)
+FOREIGN KEY(BidderID) REFERENCES Bidders(UserID)
 );
