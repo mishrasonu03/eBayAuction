@@ -45,7 +45,7 @@ class MyParser {
     
     static final String columnSeparator = "|*|";
     static DocumentBuilder builder;
-    
+    /*    
     public static class User {
         String location;
         String latitude;
@@ -89,13 +89,15 @@ class MyParser {
                        +columnSeparator+ longitude +columnSeparator+ country
                        +columnSeparator+ sellerRating +columnSeparator+ bidderRating;
         }
-    }
+    }*/
     
-    static HashMap<String, User> userHashMap = new HashMap<String, User>();
+    //static HashMap<String, User> userHashMap = new HashMap<String, User>();
     static BufferedWriter itemTableWriter;
     static BufferedWriter categoryTableWriter;
     static BufferedWriter userTableWriter;
     static BufferedWriter bidTableWriter;
+    static BufferedWriter sellerTableWriter;
+    static BufferedWriter bidderTableWriter;
 
     static final String[] typeName = {
 	"none",
@@ -252,6 +254,7 @@ class MyParser {
         //String sellerCountry = getElementText(getElementByTagNameNR(item, "Country")); 
         String sellerCountry = getElementTextByTagNameNR(item, "Country"); 
 
+	/*
         if (!userHashMap.containsKey(sellerID)) {
             User sellerObj = new User(sellerLocation, sellerLatitude, sellerLongitude, sellerCountry, "", sellerRating);
             userHashMap.put(sellerID, sellerObj);
@@ -259,8 +262,9 @@ class MyParser {
         else{
             User userObj = userHashMap.get(sellerID);
             userHashMap.put(sellerID, userObj.setLat(sellerLatitude).setLong(sellerLongitude).setSellRating(sellerRating));            
-        }
-        //writeToFile(userTableWriter, sellerID, sellerLocation, sellerLatitude, sellerLongitude, sellerCountry, 0, sellerRating);
+        }*/
+        writeToFile (userTableWriter, sellerID, sellerLocation, sellerCountry);
+        writeToFile (sellerTableWriter, sellerID, sellerRating, sellerLatitude, sellerLongitude);
             
         Element[] bids = getElementsByTagNameNR(getElementByTagNameNR(item, "Bids"), "Bid");
             
@@ -270,7 +274,7 @@ class MyParser {
             String bidderRating = bidder.getAttribute("Rating");
             String bidderLocation = getElementTextByTagNameNR(bidder, "Location");
             String bidderCountry = getElementTextByTagNameNR(bidder, "Country");
-            
+	    /*
             if (!userHashMap.containsKey(bidderID)) {
                 User bidderObj = new User(bidderLocation, "", "", bidderCountry, bidderRating, "");
                 userHashMap.put(bidderID, bidderObj);
@@ -278,8 +282,9 @@ class MyParser {
             else{
                 User userObj = userHashMap.get(bidderID);
                 userHashMap.put(bidderID, userObj.setBidRating(bidderRating));            
-            }
-            //writeToFile(userTableWriter, bidderID, bidderLocation, "", "", bidderCountry, bidderRating, "");
+            }*/
+            writeToFile(userTableWriter, bidderID, bidderLocation, bidderCountry);
+            writeToFile(bidderTableWriter, bidderID, bidderRating);
         }
     }
 
@@ -428,6 +433,8 @@ class MyParser {
             categoryTableWriter = new BufferedWriter(new FileWriter("categoryTable.dat", true));
             userTableWriter = new BufferedWriter(new FileWriter("userTable.dat", true));
             bidTableWriter = new BufferedWriter(new FileWriter("bidTable.dat", true));
+            sellerTableWriter = new BufferedWriter(new FileWriter("sellerTable.dat", true));
+            bidderTableWriter = new BufferedWriter(new FileWriter("bidderTable.dat", true));
 
             /* Process all files listed on command line. */
             for (int i = 0; i < args.length; i++) {
@@ -438,18 +445,21 @@ class MyParser {
             /* Writing into user table; item, category, bid tables have been written
             in parse2ItemTable(), parse2BidTable and parse2CategoryTable, respectively
             */
+	        /*
             Set<String> users = userHashMap.keySet();
             Iterator<String> userIDs = users.iterator();
             while(userIDs.hasNext()) {
                 String userID = userIDs.next();
                 userTableWriter.write(userID + userHashMap.get(userID).toString());
                 userTableWriter.newLine();
-            }
+            }*/
 
             itemTableWriter.close();
-            userTableWriter.close();
+            userTableWriter.close();            
             categoryTableWriter.close();
             bidTableWriter.close();
+            sellerTableWriter.close();
+            bidderTableWriter.close();
         }
         catch(IOException e){
             e.printStackTrace();
