@@ -92,9 +92,9 @@ class MyParser {
     }*/
     
     //static HashMap<String, User> userHashMap = new HashMap<String, User>();
+    //static BufferedWriter userTableWriter;
     static BufferedWriter itemTableWriter;
     static BufferedWriter categoryTableWriter;
-    static BufferedWriter userTableWriter;
     static BufferedWriter bidTableWriter;
     static BufferedWriter sellerTableWriter;
     static BufferedWriter bidderTableWriter;
@@ -233,7 +233,15 @@ class MyParser {
         Element seller = getElementByTagNameNR(item, "Seller");
         String sellerID = seller.getAttribute("UserID");
 
-        writeToFile(itemTableWriter, itemID, sellerID, name, buyPrice, firstBid, started, ends, description);
+        Element location = getElementByTagNameNR(item, "Location");
+        String latitude = location.getAttribute("Latitude");
+        String longitude = location.getAttribute("Longitude");
+        String locationTxt = getElementText(location);
+        //String sellerCountry = getElementText(getElementByTagNameNR(item, "Country")); 
+        String country = getElementTextByTagNameNR(item, "Country"); 
+
+        writeToFile(itemTableWriter, itemID, sellerID, name, buyPrice, firstBid, started, ends, 
+                                        latitude, longitude, locationTxt, country, description);
     }
 
 
@@ -246,15 +254,16 @@ class MyParser {
         Element seller = getElementByTagNameNR(item, "Seller");
         String sellerID = seller.getAttribute("UserID");
         String sellerRating = seller.getAttribute("Rating");
-        
+        /*
         Element sLocation = getElementByTagNameNR(item, "Location");
         String sellerLatitude = sLocation.getAttribute("Latitude");
         String sellerLongitude = sLocation.getAttribute("Longitude");
         String sellerLocation = getElementText(sLocation);
         //String sellerCountry = getElementText(getElementByTagNameNR(item, "Country")); 
         String sellerCountry = getElementTextByTagNameNR(item, "Country"); 
+        */
 
-	/*
+	    /*
         if (!userHashMap.containsKey(sellerID)) {
             User sellerObj = new User(sellerLocation, sellerLatitude, sellerLongitude, sellerCountry, "", sellerRating);
             userHashMap.put(sellerID, sellerObj);
@@ -263,8 +272,8 @@ class MyParser {
             User userObj = userHashMap.get(sellerID);
             userHashMap.put(sellerID, userObj.setLat(sellerLatitude).setLong(sellerLongitude).setSellRating(sellerRating));            
         }*/
-        writeToFile (userTableWriter, sellerID, sellerLocation, sellerCountry);
-        writeToFile (sellerTableWriter, sellerID, sellerRating, sellerLatitude, sellerLongitude);
+        //writeToFile (userTableWriter, sellerID, sellerLocation, sellerCountry);
+        writeToFile (sellerTableWriter, sellerID, sellerRating);
             
         Element[] bids = getElementsByTagNameNR(getElementByTagNameNR(item, "Bids"), "Bid");
             
@@ -274,7 +283,7 @@ class MyParser {
             String bidderRating = bidder.getAttribute("Rating");
             String bidderLocation = getElementTextByTagNameNR(bidder, "Location");
             String bidderCountry = getElementTextByTagNameNR(bidder, "Country");
-	    /*
+	        /*
             if (!userHashMap.containsKey(bidderID)) {
                 User bidderObj = new User(bidderLocation, "", "", bidderCountry, bidderRating, "");
                 userHashMap.put(bidderID, bidderObj);
@@ -283,8 +292,8 @@ class MyParser {
                 User userObj = userHashMap.get(bidderID);
                 userHashMap.put(bidderID, userObj.setBidRating(bidderRating));            
             }*/
-            writeToFile(userTableWriter, bidderID, bidderLocation, bidderCountry);
-            writeToFile(bidderTableWriter, bidderID, bidderRating);
+            //writeToFile(userTableWriter, bidderID, bidderLocation, bidderCountry);
+            writeToFile(bidderTableWriter, bidderID, bidderRating, bidderLocation, bidderCountry);
         }
     }
 
@@ -351,6 +360,7 @@ class MyParser {
         StringBuilder row = new StringBuilder();
         int i = 0;
         while(i < input.length-1){
+		if (input[i]=="") input[i]="\\N";
             row.append(input[i] + columnSeparator);
             i++;
         }
@@ -429,9 +439,9 @@ class MyParser {
         }
         
         try{
+            //userTableWriter = new BufferedWriter(new FileWriter("userTable.dat", true));
             itemTableWriter = new BufferedWriter(new FileWriter("itemTable.dat", true));
             categoryTableWriter = new BufferedWriter(new FileWriter("categoryTable.dat", true));
-            userTableWriter = new BufferedWriter(new FileWriter("userTable.dat", true));
             bidTableWriter = new BufferedWriter(new FileWriter("bidTable.dat", true));
             sellerTableWriter = new BufferedWriter(new FileWriter("sellerTable.dat", true));
             bidderTableWriter = new BufferedWriter(new FileWriter("bidderTable.dat", true));
@@ -454,8 +464,8 @@ class MyParser {
                 userTableWriter.newLine();
             }*/
 
+            //userTableWriter.close();
             itemTableWriter.close();
-            userTableWriter.close();            
             categoryTableWriter.close();
             bidTableWriter.close();
             sellerTableWriter.close();
