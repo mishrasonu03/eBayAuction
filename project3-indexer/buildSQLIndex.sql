@@ -4,6 +4,6 @@ LatLong POINT NOT NULL,
 PRIMARY KEY(ItemID)
 )ENGINE=MyISAM;
 
-INSERT INTO SpatialIndex(ItemID, LatLong) SELECT ItemID, POINT(Latitude, Longitude) FROM Items;
+INSERT INTO SpatialIndex(ItemID, LatLong) SELECT ItemID, POINT(Latitude, Longitude) FROM Items WHERE Latitude IS NOT NULL AND Longitude IS NOT NULL;
 
-ALTER TABLE SpatialIndex ADD SPATIAL INDEX(LatLong);
+CREATE SPATIAL INDEX sp_index ON SpatialIndex(LatLong);
