@@ -96,7 +96,7 @@ public class Indexer {
             categories += mCategories.getString("Category") + " ";
         }
         
-        union = mItems.getString("Name") + " " + mItems.getString("Description") + categories;
+        union = mItems.getString("Name") + " " + mItems.getString("Description") + " " + categories;
         doc.add(new StringField("ItemID", ""+id, Field.Store.YES));
         doc.add(new TextField("Name", name, Field.Store.YES));
         doc.add(new TextField("Description", description, Field.Store.YES));
