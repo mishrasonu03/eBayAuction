@@ -212,6 +212,7 @@ public class AuctionSearch implements IAuctionSearch {
         DocumentBuilder mBuilder = null;
         org.w3c.dom.Document mDoc = null;
         StringWriter writer = null;
+        String temp= "";
 		try {
             conn = DbManager.getConnection(true);
             itemsStmt = conn.createStatement();
@@ -245,17 +246,23 @@ public class AuctionSearch implements IAuctionSearch {
             currStmt = conn.createStatement();
             currRes = currStmt.executeQuery("SELECT MAX(Amount) FROM Bids WHERE ItemID=" + itemId);
             currRes.next();
-            eleCurrent.appendChild(mDoc.createTextNode(currRes.getString("MAX(Amount)")));
+            if(currRes.getString("MAX(Amount)") != null){
+                eleCurrent.appendChild(mDoc.createTextNode("$" + currRes.getString("MAX(Amount)")));  
+            }else{
+                eleCurrent.appendChild(mDoc.createTextNode("$" + itemRes.getString("First_Bid")));
+            }
             eleItem.appendChild(eleCurrent);
             
             //Buy_Price
+            if(itemRes.getString("Buy_Price") != null){
             eleBuyP = mDoc.createElement("Buy_Price");
-            eleBuyP.appendChild(mDoc.createTextNode(itemRes.getString("Buy_Price")));
+            eleBuyP.appendChild(mDoc.createTextNode("$" + itemRes.getString("Buy_Price")));
             eleItem.appendChild(eleBuyP);
+            }
             
             //First_Bid
             eleFirstBid = mDoc.createElement("First_Bid");
-            eleFirstBid.appendChild(mDoc.createTextNode(itemRes.getString("First_Bid")));
+            eleFirstBid.appendChild(mDoc.createTextNode("$" + itemRes.getString("First_Bid")));
             eleItem.appendChild(eleFirstBid);
             
             //Number_of_Bids
@@ -266,11 +273,6 @@ public class AuctionSearch implements IAuctionSearch {
             eleNumBids.appendChild(mDoc.createTextNode(numBidsRes.getString("COUNT(*)")));
             eleItem.appendChild(eleNumBids);
             
-            //First_Bid
-            eleFirstBid = mDoc.createElement("First_Bid");
-            eleFirstBid.appendChild(mDoc.createTextNode(itemRes.getString("First_Bid")));
-            eleItem.appendChild(eleFirstBid);
-            
             //Bids
             bidsStmt = conn.createStatement();
             bidsRes = bidsStmt.executeQuery("SELECT * FROM Bids WHERE ItemID=" + itemId);
@@ -279,8 +281,9 @@ public class AuctionSearch implements IAuctionSearch {
                 //Bid
                 eleBid = mDoc.createElement("Bid");
                 bidStmt = conn.createStatement();
-                bidRes = bidStmt.executeQuery("SELECT * FROM Bidders WHERE UserID=" + "\"" + bidRes.getString("BidderID") + "\"");
+                bidRes = bidStmt.executeQuery("SELECT * FROM Bidders WHERE UserID=" + "\"" + bidsRes.getString("BidderID") + "\"");
                 bidRes.next();
+                
                 //Bidder
                 eleBidder = mDoc.createElement("Bidder");
                 bUserID = mDoc.createAttribute("UserID");
@@ -294,36 +297,45 @@ public class AuctionSearch implements IAuctionSearch {
                 eleLoc = mDoc.createElement("Location");
                 eleLoc.appendChild(mDoc.createTextNode(bidRes.getString("Location")));
                 eleBidder.appendChild(eleLoc);
-                
+
                 //Country
                 eleCountry = mDoc.createElement("Country");
                 eleCountry.appendChild(mDoc.createTextNode(bidRes.getString("Country")));
                 eleBidder.appendChild(eleCountry);
                 eleBid.appendChild(eleBidder);
-                
+
                 //Time
                 eleTime = mDoc.createElement("Time");
                 date = fromTime.parse(bidsRes.getString("Time"));
                 eleTime.appendChild(mDoc.createTextNode(toTime.format(date)));
                 eleBid.appendChild(eleTime);
-                
+
                 //Amount
                 eleAmount = mDoc.createElement("Amount");
-                eleAmount.appendChild(mDoc.createTextNode(bidsRes.getString("Amount")));
+                eleAmount.appendChild(mDoc.createTextNode("$" + bidsRes.getString("Amount")));
                 eleBid.appendChild(eleAmount);
-                
+
                 eleBids.appendChild(eleBid);
             }
             eleItem.appendChild(eleBids);
             
             //Location
             eleLoc = mDoc.createElement("Location");
-            locLat = mDoc.createAttribute("Latitude");
-            locLat.setValue(itemRes.getString("Latitude"));
-            eleLoc.setAttributeNode(locLat);
-            locLong = mDoc.createAttribute("Longitude");
-            locLong.setValue(itemRes.getString("Longitude"));
-            eleLoc.setAttributeNode(locLong);
+            if(itemRes.getString("Latitude") != null){
+                locLat = mDoc.createAttribute("Latitude");
+                temp = itemRes.getString("Latitude");
+                temp = temp.indexOf(".") < 0 ? temp : temp.replaceAll("0*$", "").replaceAll("\\.$", "");
+                locLat.setValue(temp);
+                eleLoc.setAttributeNode(locLat);
+            }            
+            if(itemRes.getString("Longitude") != null){
+                locLong = mDoc.createAttribute("Longitude");
+                temp = itemRes.getString("Latitude");
+                temp = temp.indexOf(".") < 0 ? temp : temp.replaceAll("0*$", "").replaceAll("\\.$", "");
+                locLong.setValue(temp);
+                eleLoc.setAttributeNode(locLong);
+            }
+            eleLoc.appendChild(mDoc.createTextNode(itemRes.getString("Location")));
             eleItem.appendChild(eleLoc);
             
             //Country
