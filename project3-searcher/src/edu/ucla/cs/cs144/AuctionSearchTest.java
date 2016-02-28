@@ -17,11 +17,11 @@ public class AuctionSearchTest {
 		System.out.println("Reply: " + reply);
 		
 
-		String query = "star trek";
-		SearchResult[] basicResults = as.basicSearch(query, 0, 770);
+		String query = "superman";
+		SearchResult[] basicResults = as.basicSearch(query, 0, 70);
 		System.out.println("Basic Seacrh Query: " + query);
 		System.out.println("Received " + basicResults.length + " results");
-		/*for(SearchResult result : basicResults) {
+		for(SearchResult result : basicResults) {
 			System.out.println(result.getItemId() + ": " + result.getName());
 		}
 		/*

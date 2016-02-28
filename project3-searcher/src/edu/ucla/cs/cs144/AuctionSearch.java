@@ -73,6 +73,10 @@ public class AuctionSearch implements IAuctionSearch {
             
             ScoreDoc[] hits = tDocs.scoreDocs;
             int maxLength;
+            if(hits.length - numResultsToSkip < 0){
+                results = new SearchResult[0];
+                return results;
+            }
             if(numResultsToReturn < hits.length - numResultsToSkip){
                 results = new SearchResult[numResultsToReturn];
                 maxLength = numResultsToReturn + numResultsToSkip;
