@@ -5,7 +5,6 @@
 <%@ page import="java.util.HashMap" %>
 
 
-
 <html>
 <body onload="initialize()"> 
 <form action="/eBay/item">

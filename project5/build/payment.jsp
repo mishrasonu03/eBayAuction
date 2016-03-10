@@ -1,4 +1,5 @@
-<% String secureURL = "https://" + request.getServerName() + ":8443" + request.getContextPath() + "/buy"; %>
+<% String secureConfirm = "https://" + request.getServerName() + ":8443" + request.getContextPath() + "/confirm"; %>
+<% String insecureSearch = "http://" + request.getServerName() + ":1448" + request.getContextPath() + "/search"; %>
 
 <html>
     <head>
@@ -12,7 +13,7 @@
     </head> 
 
 	<body>
-        <form action="/eBay/search">            
+        <form action="<%= insecureSearch %>">            
             Search for: <input type="text" name="q" id="qbox" style="width:500px;"/>            
             <input type="hidden" name="numResultsToSkip" value="0"/>
             <input type="hidden" name="numResultsToReturn" value="11"/>
@@ -22,14 +23,14 @@
 
 		<h1>Payment Details</h1>
 		
-		<form method="post" action="<%= secureURL %>">
+		<form method="post" action="<%= secureConfirm %>">
         	<p>Item ID: <%= request.getAttribute("ID") %></p> 
             <p>Item Name: <%= request.getAttribute("Name") %></p> 
         	<p>Buy Price: <%= request.getAttribute("BuyPrice") %></p> <br />
         	
+            <input type="hidden" name="action" value="confirmation" />
             <input type="hidden" name="id" value="<%= request.getAttribute("ID") %>" />
-        	<input type="hidden" name="action" value="confirm" />
-        	Enter Credit Card #: <input type="text" name="cc" /> <br />
+        	Enter Credit Card #: <input type="text" name="cardNo" /> <br />
         	
         	<input type="submit" value="Pay Now" />
         </form>		
