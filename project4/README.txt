@@ -1,0 +1,1 @@
+The autosuggest doesn't show up on the selenium demo

@@ -35,6 +35,10 @@ public class ItemServlet extends HttpServlet implements Servlet {
             }
 			String query = request.getParameter("id");
             String result = AuctionSearchClient.getXMLDataForItemId(query);
+            if (result.isEmpty()) {
+                response.sendRedirect("getItem.html");
+                return;
+            }
             String id = "";
 			String name = "";
             String[] categories;
