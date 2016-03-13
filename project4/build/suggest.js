@@ -345,12 +345,6 @@ AutoSuggestControl.prototype.requestSuggestions = function ()
 		}
 };
 
-/**
- * Inserts a suggestion into the textbox, highlighting the 
- * suggested part of the text.
- * @scope private
- * @param sSuggestion The suggestion for the textbox.
- */
 AutoSuggestControl.prototype.typeAhead = function (sSuggestion /*:String*/) {
 
     //check for support of typeahead functionality

@@ -25,7 +25,12 @@ public class ItemServlet extends HttpServlet implements Servlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
     {
-       try{
+        try{
+            String searchID = request.getParameter("id");
+            if (searchID.isEmpty()) {
+                response.sendRedirect("getItem.html");
+                return;
+            }
 			String query = request.getParameter("id");
             String result = AuctionSearchClient.getXMLDataForItemId(query);
             String id = "";
