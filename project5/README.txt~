@@ -5,5 +5,4 @@ Q2: How do you ensure that the item was purchased exactly at the Buy_Price of th
 A: When the buyer lands on the item information page, we instantiate an HTTPSession variable. With the help of this variable, the Tomcat server itself remembers the information. After this, any subsequent HTTP request from the same browser will be part of this session, so the associated information can be retrieved from the session variable. This also validates the request prior to purchase. For instance, any malicious user who tries to make a request to the payment page without having a proper session, gets an error.
 
 
-Grace Period:
-We have 2 days grace period left. Please use those while grading.
+

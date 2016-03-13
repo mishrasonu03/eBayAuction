@@ -17,11 +17,6 @@ public class ConfirmServlet extends HttpServlet implements Servlet
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
   {
-  	doGet(request, response);
-  }
-
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
-  {
   	try
   	{
 	  	String queryType = request.getParameter("action");
